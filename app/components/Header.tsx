@@ -3,9 +3,10 @@
 interface HeaderProps {
   onRefresh: () => void
   lastUpdate: Date | null
+  onShowCommonDocuments?: () => void
 }
 
-export default function Header({ onRefresh, lastUpdate }: HeaderProps) {
+export default function Header({ onRefresh, lastUpdate, onShowCommonDocuments }: HeaderProps) {
   return (
     <header className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,6 +21,13 @@ export default function Header({ onRefresh, lastUpdate }: HeaderProps) {
             </div>
           </div>
           <div className="flex items-center space-x-4">
+            <button
+              onClick={onShowCommonDocuments}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+            >
+              <i className="fas fa-folder-open"></i>
+              <span>Văn bản chung</span>
+            </button>
             <button
               onClick={onRefresh}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"

@@ -9,7 +9,14 @@ import DataTable from "./components/DataTable"
 import DemoNotice from "./components/DemoNotice"
 import LoadingState from "./components/LoadingState"
 import ProvinceSelector from "./components/ProvinceSelector"
-import { generateDemoData, type ProvinceData } from "./utils/demoData"
+import CommonDocumentsModal from "./components/CommonDocumentsModal"
+import {
+  generateDemoData,
+  generateCommonDocuments,
+  type ProvinceData,
+  type DocumentData,
+  type CommonDocumentData,
+} from "./utils/demoData"
 import DebugPanel from "./components/DebugPanel"
 import DataCheck from "./components/DataCheck"
 
@@ -47,13 +54,17 @@ export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<"all" | "region" | "selected">("all")
   const [error, setError] = useState<string | null>(null)
   const [hasDataIssue, setHasDataIssue] = useState(false)
+  const [commonDocuments, setCommonDocuments] = useState<CommonDocumentData[]>([])
+  const [showCommonDocuments, setShowCommonDocuments] = useState(false)
 
   // Initialize data
   useEffect(() => {
     console.log("Initializing data...")
     try {
       const initData = generateDemoData()
+      const initCommonDocs = generateCommonDocuments()
       console.log("Generated data length:", initData?.length)
+      console.log("Generated common documents:", initCommonDocs?.length)
 
       if (initData && initData.length > 0) {
         setOriginalData(initData)
@@ -63,6 +74,11 @@ export default function DashboardPage() {
         console.warn("Using fallback data")
         setOriginalData(fallbackData)
         setData(fallbackData)
+      }
+
+      if (initCommonDocs && initCommonDocs.length > 0) {
+        setCommonDocuments(initCommonDocs)
+        console.log("Common documents loaded successfully:", initCommonDocs.length, "documents")
       }
     } catch (error) {
       console.error("Error generating data:", error)
@@ -136,6 +152,37 @@ export default function DashboardPage() {
       setSelectedProvinces([])
     }
     setSearchTerm("")
+  }, [])
+
+  const handleAddDocumentToProvince = useCallback(
+    (provinceIndex: number, document: Omit<DocumentData, "id">) => {
+      const newDocument: DocumentData = {
+        ...document,
+        id: `${data[provinceIndex].province}-${Date.now()}`,
+      }
+
+      const newData = [...data]
+      newData[provinceIndex] = {
+        ...newData[provinceIndex],
+        documents: [...newData[provinceIndex].documents, newDocument],
+      }
+
+      setData(newData)
+      console.log("Added document to province:", newDocument)
+    },
+    [data],
+  )
+
+  const handleAddCommonDocument = useCallback((document: Omit<CommonDocumentData, "id">) => {
+    const newDocument: CommonDocumentData = {
+      ...document,
+      id: `common-${Date.now()}`,
+      fileSize: "1.2 MB",
+      downloadCount: 0,
+    }
+
+    setCommonDocuments((prev) => [...prev, newDocument])
+    console.log("Added common document:", newDocument)
   }, [])
 
   // Filter and sort data
@@ -232,7 +279,11 @@ export default function DashboardPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <Header onRefresh={refreshData} lastUpdate={lastUpdate} />
+      <Header
+        onRefresh={refreshData}
+        lastUpdate={lastUpdate}
+        onShowCommonDocuments={() => setShowCommonDocuments(true)}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <DemoNotice />
@@ -293,6 +344,7 @@ export default function DashboardPage() {
             selectedProvinces={selectedProvinces}
             viewMode={viewMode}
             onRegionSelect={handleRegionSelect}
+            onAddDocument={handleAddDocumentToProvince}
           />
         </div>
       </main>
@@ -310,6 +362,12 @@ export default function DashboardPage() {
         </div>
       </footer>
       <DebugPanel data={data} originalData={originalData} />
+      <CommonDocumentsModal
+        isOpen={showCommonDocuments}
+        onClose={() => setShowCommonDocuments(false)}
+        documents={commonDocuments}
+        onAddDocument={handleAddCommonDocument}
+      />
     </div>
   )
 }

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import DocumentsModal from "./DocumentsModal"
 import type { ProvinceData } from "../utils/demoData"
+import type { DocumentData } from "../utils/demoData"
 
 interface DataTableProps {
   data: ProvinceData[]
@@ -15,6 +16,7 @@ interface DataTableProps {
   selectedProvinces: string[]
   viewMode: "all" | "region" | "selected"
   onRegionSelect: (region: "north" | "central" | "south" | null) => void
+  onAddDocument?: (provinceIndex: number, document: Omit<DocumentData, "id">) => void
 }
 
 export default function DataTable({
@@ -28,6 +30,7 @@ export default function DataTable({
   selectedProvinces,
   viewMode,
   onRegionSelect,
+  onAddDocument,
 }: DataTableProps) {
   const [selectedProvince, setSelectedProvince] = useState<ProvinceData | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -39,6 +42,15 @@ export default function DataTable({
   const handleViewDocuments = (province: ProvinceData) => {
     setSelectedProvince(province)
     setIsModalOpen(true)
+  }
+
+  const handleAddDocumentToProvince = (document: Omit<DocumentData, "id">) => {
+    if (onAddDocument && selectedProvince) {
+      const provinceIndex = originalData.findIndex((p) => p.province === selectedProvince.province)
+      if (provinceIndex !== -1) {
+        onAddDocument(provinceIndex, document)
+      }
+    }
   }
 
   const getRegionName = (region: string) => {
@@ -281,9 +293,13 @@ export default function DataTable({
             </div>
           </div>
         </div>
+        <DocumentsModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          province={selectedProvince}
+          onAddDocument={handleAddDocumentToProvince}
+        />
       </div>
-
-      <DocumentsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} province={selectedProvince} />
     </>
   )
 }

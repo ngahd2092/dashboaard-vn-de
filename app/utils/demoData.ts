@@ -1,3 +1,16 @@
+export interface CommonDocumentData {
+  id: string
+  title: string
+  type: "decision" | "circular" | "directive" | "plan" | "guideline"
+  number: string
+  date: string
+  status: "active" | "draft" | "expired"
+  description?: string
+  url?: string
+  fileSize?: string
+  downloadCount?: number
+}
+
 export interface DocumentData {
   id: string
   title: string
@@ -18,6 +31,66 @@ export interface ProvinceData {
   documents: DocumentData[]
 }
 
+export function generateCommonDocuments(): CommonDocumentData[] {
+  return [
+    {
+      id: "common-001",
+      title: "Quyết định về việc triển khai tên miền quốc gia .id.vn và .biz.vn",
+      type: "decision",
+      number: "123/QĐ-BTTTT",
+      date: "2024-01-15",
+      status: "active",
+      description: "Quyết định ban hành quy định về triển khai và quản lý tên miền quốc gia",
+      fileSize: "2.5 MB",
+      downloadCount: 1250,
+    },
+    {
+      id: "common-002",
+      title: "Thông tư hướng dẫn đăng ký và sử dụng tên miền .id.vn",
+      type: "circular",
+      number: "45/TT-BTTTT",
+      date: "2024-02-20",
+      status: "active",
+      description: "Hướng dẫn chi tiết quy trình đăng ký và sử dụng tên miền cá nhân",
+      fileSize: "1.8 MB",
+      downloadCount: 890,
+    },
+    {
+      id: "common-003",
+      title: "Chỉ thị về đẩy mạnh chuyển đổi số và sử dụng tên miền quốc gia",
+      type: "directive",
+      number: "67/CT-TTg",
+      date: "2024-03-10",
+      status: "active",
+      description: "Chỉ thị của Thủ tướng về việc đẩy mạnh sử dụng tên miền quốc gia",
+      fileSize: "3.2 MB",
+      downloadCount: 2100,
+    },
+    {
+      id: "common-004",
+      title: "Kế hoạch phát triển hạ tầng tên miền quốc gia giai đoạn 2024-2030",
+      type: "plan",
+      number: "89/KH-BTTTT",
+      date: "2024-04-05",
+      status: "active",
+      description: "Kế hoạch tổng thể phát triển hạ tầng tên miền quốc gia",
+      fileSize: "4.1 MB",
+      downloadCount: 650,
+    },
+    {
+      id: "common-005",
+      title: "Hướng dẫn kỹ thuật triển khai DNS cho tên miền .biz.vn",
+      type: "guideline",
+      number: "12/HD-VNNIC",
+      date: "2024-05-15",
+      status: "active",
+      description: "Tài liệu hướng dẫn kỹ thuật cho nhà cung cấp dịch vụ",
+      fileSize: "5.7 MB",
+      downloadCount: 420,
+    },
+  ]
+}
+
 export function generateDemoData(): ProvinceData[] {
   console.log("generateDemoData called")
 
@@ -35,7 +108,7 @@ export function generateDemoData(): ProvinceData[] {
       },
       {
         id: `${provinceName}-002`,
-        title: `Thông tư hướng dẫn sử dụng tên miền .biz.vn`,
+        title: `Thông tư hướng dẫn sử dụng tên miền .biz.vn tại ${provinceName}`,
         type: "circular" as const,
         number: `${Math.floor(Math.random() * 50) + 10}/TT-STTTT`,
         date: "2024-02-20",
@@ -43,22 +116,39 @@ export function generateDemoData(): ProvinceData[] {
       },
       {
         id: `${provinceName}-003`,
-        title: `Kế hoạch phát triển tên miền quốc gia năm 2024`,
+        title: `Kế hoạch phát triển tên miền quốc gia năm 2024 - ${provinceName}`,
         type: "plan" as const,
         number: `${Math.floor(Math.random() * 200) + 50}/KH-UBND`,
         date: "2024-03-10",
         status: "active" as const,
       },
+      {
+        id: `${provinceName}-004`,
+        title: `Báo cáo tình hình triển khai tên miền quý I/2024 - ${provinceName}`,
+        type: "plan" as const,
+        number: `${Math.floor(Math.random() * 100) + 20}/BC-STTTT`,
+        date: "2024-04-15",
+        status: "active" as const,
+      },
     ]
 
     // Thêm văn bản đặc biệt cho một số tỉnh lớn
-    if (["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng"].includes(provinceName)) {
+    if (["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Cần Thơ", "Hải Phòng"].includes(provinceName)) {
       baseDocuments.push({
-        id: `${provinceName}-004`,
-        title: `Chỉ thị về đẩy mạnh chuyển đổi số và sử dụng tên miền quốc gia`,
+        id: `${provinceName}-005`,
+        title: `Chỉ thị về đẩy mạnh chuyển đổi số và sử dụng tên miền quốc gia - ${provinceName}`,
         type: "directive" as const,
         number: `${Math.floor(Math.random() * 30) + 1}/CT-UBND`,
         date: "2024-04-05",
+        status: "active" as const,
+      })
+
+      baseDocuments.push({
+        id: `${provinceName}-006`,
+        title: `Quy định về quản lý và sử dụng tên miền trong cơ quan nhà nước - ${provinceName}`,
+        type: "decision" as const,
+        number: `${Math.floor(Math.random() * 50) + 10}/QĐ-UBND`,
+        date: "2024-05-20",
         status: "active" as const,
       })
     }
