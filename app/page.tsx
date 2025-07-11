@@ -14,8 +14,8 @@ import DebugPanel from "./components/DebugPanel"
 import DataCheck from "./components/DataCheck"
 
 export default function DashboardPage() {
-  // Thêm vào đầu component
-  const fallbackData = [
+  // Fallback data in case of issues
+  const fallbackData: ProvinceData[] = [
     {
       stt: 1,
       province: "Hà Nội",
@@ -35,6 +35,7 @@ export default function DashboardPage() {
       documents: [],
     },
   ]
+
   const [data, setData] = useState<ProvinceData[]>([])
   const [originalData, setOriginalData] = useState<ProvinceData[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -44,20 +45,20 @@ export default function DashboardPage() {
   const [selectedRegion, setSelectedRegion] = useState<"north" | "central" | "south" | null>(null)
   const [selectedProvinces, setSelectedProvinces] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<"all" | "region" | "selected">("all")
-
-  // Add after the data state declarations
   const [error, setError] = useState<string | null>(null)
-
-  // Thêm state để handle data issues:
   const [hasDataIssue, setHasDataIssue] = useState(false)
 
   // Initialize data
   useEffect(() => {
+    console.log("Initializing data...")
     try {
       const initData = generateDemoData()
+      console.log("Generated data length:", initData?.length)
+
       if (initData && initData.length > 0) {
         setOriginalData(initData)
         setData(initData)
+        console.log("Data loaded successfully:", initData.length, "provinces")
       } else {
         console.warn("Using fallback data")
         setOriginalData(fallbackData)
@@ -68,11 +69,11 @@ export default function DashboardPage() {
       setOriginalData(fallbackData)
       setData(fallbackData)
     }
+
     setLastUpdate(new Date())
 
     // Simulate loading
     setTimeout(() => {
-      console.log("Loading complete, data length:", data.length)
       setIsLoading(false)
     }, 1500)
   }, [])
@@ -184,7 +185,7 @@ export default function DashboardPage() {
     return regions
   }, [data])
 
-  // Thêm function để handle data issues:
+  // Handle data issues
   const handleDataIssue = useCallback(() => {
     setHasDataIssue(true)
     console.error("Data issue detected!")
@@ -212,7 +213,7 @@ export default function DashboardPage() {
     return <LoadingState />
   }
 
-  // Add after the loading check
+  // Check if no data loaded
   if (!isLoading && data.length === 0) {
     console.error("No data loaded!")
     return (
