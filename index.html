@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Triển Khai Tên Miền ID.VN & BIZ.VN - Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .demo-badge {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .card-hover {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-globe text-blue-600 text-2xl"></i>
+                        <h1 class="text-2xl font-bold text-gray-900">Dashboard Triển Khai Tên Miền</h1>
+                        <span class="demo-badge">DEMO</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="refreshBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Làm mới dữ liệu</span>
+                    </button>
+                    <div class="text-sm text-gray-500">
+                        Cập nhật lần cuối: <span id="lastUpdate">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Demo Notice -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div class="flex items-center">
+                <i class="fas fa-info-circle text-blue-600 mr-3"></i>
+                <div>
+                    <h3 class="text-sm font-medium text-blue-800">Đây là phiên bản demo</h3>
+                    <p class="text-sm text-blue-700 mt-1">Dữ liệu hiển thị là dữ liệu mẫu để minh họa. Phiên bản thực tế sẽ kết nối với Google Sheets của bạn.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden flex items-center justify-center py-12">
+            <div class="text-center">
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
+                <p class="text-gray-600">Đang tải dữ liệu...</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboardContent">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-globe text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Tổng ID.VN</p>
+                            <p id="totalIdVn" class="text-2xl font-semibold text-gray-900">0</p>
+                            <p class="text-xs text-green-600 mt-1">
+                                <i class="fas fa-arrow-up"></i> +12% so với tháng trước
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-building text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Tổng BIZ.VN</p>
+                            <p id="totalBizVn" class="text-2xl font-semibold text-gray-900">0</p>
+                            <p class="text-xs text-green-600 mt-1">
+                                <i class="fas fa-arrow-up"></i> +8% so với tháng trước
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-map-marker-alt text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Số tỉnh triển khai</p>
+                            <p id="totalProvinces" class="text-2xl font-semibold text-gray-900">0</p>
+                            <p class="text-xs text-blue-600 mt-1">
+                                <i class="fas fa-map"></i> Trên toàn quốc
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-line text-orange-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Tổng tên miền</p>
+                            <p id="totalDomains" class="text-2xl font-semibold text-gray-900">0</p>
+                            <p class="text-xs text-green-600 mt-1">
+                                <i class="fas fa-arrow-up"></i> +10% so với tháng trước
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Domain Distribution Chart -->
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Phân bố tên miền theo loại</h3>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Tỷ lệ phần trăm</span>
+                        </div>
+                    </div>
+                    <div class="relative h-64">
+                        <canvas id="domainTypeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top Provinces Chart -->
+                <div class="bg-white rounded-lg shadow p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Top 10 tỉnh có nhiều tên miền nhất</h3>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Số lượng</span>
+                        </div>
+                    </div>
+                    <div class="relative h-64">
+                        <canvas id="topProvincesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regional Distribution -->
+            <div class="bg-white rounded-lg shadow p-6 mb-8 card-hover">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Phân bố theo vùng miền</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <i class="fas fa-mountain text-blue-600 text-2xl mb-2"></i>
+                        <h4 class="font-semibold text-gray-900">Miền Bắc</h4>
+                        <p id="northTotal" class="text-xl font-bold text-blue-600">0</p>
+                        <p class="text-sm text-gray-600">tên miền</p>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <i class="fas fa-water text-green-600 text-2xl mb-2"></i>
+                        <h4 class="font-semibold text-gray-900">Miền Trung</h4>
+                        <p id="centralTotal" class="text-xl font-bold text-green-600">0</p>
+                        <p class="text-sm text-gray-600">tên miền</p>
+                    </div>
+                    <div class="text-center p-4 bg-orange-50 rounded-lg">
+                        <i class="fas fa-sun text-orange-600 text-2xl mb-2"></i>
+                        <h4 class="font-semibold text-gray-900">Miền Nam</h4>
+                        <p id="southTotal" class="text-xl font-bold text-orange-600">0</p>
+                        <p class="text-sm text-gray-600">tên miền</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="bg-white rounded-lg shadow card-hover">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+                        <h3 class="text-lg font-semibold text-gray-900">Chi tiết theo tỉnh thành</h3>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input 
+                                    type="text" 
+                                    id="searchInput" 
+                                    placeholder="Tìm kiếm tỉnh..." 
+                                    class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                            </div>
+                            <select id="sortSelect" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="province">Sắp xếp theo tỉnh</option>
+                                <option value="total">Sắp xếp theo tổng</option>
+                                <option value="id_vn">Sắp xếp theo ID.VN</option>
+                                <option value="biz_vn">Sắp xếp theo BIZ.VN</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tỉnh/Thành phố</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center space-x-1">
+                                        <span>ID.VN</span>
+                                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center space-x-1">
+                                        <span>BIZ.VN</span>
+                                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tỷ lệ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div class="flex items-center justify-between text-sm text-gray-600">
+                        <span>Hiển thị <span id="showingCount">0</span> trên tổng số <span id="totalCount">0</span> tỉnh thành</span>
+                        <div class="flex items-center space-x-2">
+                            <span>Tổng cộng:</span>
+                            <span class="font-semibold" id="grandTotal">0</span>
+                            <span>tên miền</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-sm text-gray-600">
+                    © 2024 Dashboard Triển Khai Tên Miền. Phiên bản Demo.
+                </div>
+                <div class="flex items-center space-x-4 mt-4 md:mt-0">
+                    <span class="text-sm text-gray-500">Được xây dựng với</span>
+                    <i class="fas fa-heart text-red-500"></i>
+                    <span class="text-sm text-gray-500">bởi v0</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="demo-dashboard.js"></script>
+</body>
+</html>
