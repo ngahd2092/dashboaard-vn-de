@@ -356,7 +356,7 @@ export default function DashboardPage() {
             <div className="flex items-center space-x-4 mt-4 md:mt-0">
               <span className="text-sm text-gray-500">Được xây dựng với</span>
               <i className="fas fa-heart text-red-500"></i>
-              <span className="text-sm text-gray-500">bởi React & v0</span>
+              <span className="text-sm text-gray-500">bởi Ngà Đặng</span>
             </div>
           </div>
         </div>
